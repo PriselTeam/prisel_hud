@@ -72,7 +72,7 @@ hook.Add("HUDPaint", "S:Prisel:HUD:Hook:HUDPaint", function()
   	draw.RoundedBox(DarkRP.Config.RoundedBoxValue, DarkRP.ScrW * 0.02, DarkRP.ScrH - (30) * 2, math.Clamp(lerps.hunger * 2, 0, DarkRP.ScrW * 0.1), DarkRP.ScrH * 0.02, DarkRP.Config.Colors["Green"])
   	draw.RoundedBox(DarkRP.Config.RoundedBoxValue, DarkRP.ScrW * 0.02, DarkRP.ScrH - (30) * 3, math.Clamp(lerps.heal * 2, 0, DarkRP.ScrW * 0.1), DarkRP.ScrH * 0.02, DarkRP.Config.Colors["Red"])
 	draw.SimpleText(math.Round(lerps.armor), DarkRP.Library.Font(6, 0, "Montserrat Bold"), DarkRP.ScrW * 0.02 + DarkRP.ScrW * 0.1 /2, DarkRP.ScrH - 30 + DarkRP.ScrH * 0.02 /2, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-	draw.SimpleText(math.Round(lerps.hunger), DarkRP.Library.Font(6, 0, "Montserrat Bold"), DarkRP.ScrW * 0.02 + DarkRP.ScrW * 0.1 /2, DarkRP.ScrH - 30 *2 + DarkRP.ScrH * 0.02 /2, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+	draw.SimpleText(lerps.hunger, DarkRP.Library.Font(6, 0, "Montserrat Bold"), DarkRP.ScrW * 0.02 + DarkRP.ScrW * 0.1 /2, DarkRP.ScrH - 30 *2 + DarkRP.ScrH * 0.02 /2, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 	draw.SimpleText(math.Round(lerps.heal), DarkRP.Library.Font(6, 0, "Montserrat Bold"), DarkRP.ScrW * 0.02 + DarkRP.ScrW * 0.1 /2, DarkRP.ScrH - 30 *3 + DarkRP.ScrH * 0.02 /2, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 
 	surface.SetDrawColor(color_white)
@@ -102,7 +102,7 @@ hook.Add("HUDPaint", "S:Prisel:HUD:Hook:HUDPaint", function()
 	if PriselHUD.ActiveLogo then
 		DarkRP.Library.DrawMaterialSwing(DarkRP.Library.FetchCDN("prisel_main/prisel_logo_bleu"), DarkRP.ScrW * 0.027, DarkRP.ScrW * 0.027, (624/8)-DarkRP.ScrW/DarkRP.ScrW, (439/8)-DarkRP.ScrH/DarkRP.ScrH, 8, 3)
 	end
-		
+
 	local trace = localPlayer:GetEyeTrace()
 	local ent = trace.Entity
 
@@ -127,26 +127,28 @@ local function NameAboveTheHead()
   ang:RotateAroundAxis(ang:Forward(), 90)
   ang:RotateAroundAxis(ang:Right(), 0)
 
+  if p:HasAdminMode() then return end
+
   for k,v in ipairs(ents.FindInSphere(p:GetPos(), 100)) do
-		if not IsValid(v) or not v:IsPlayer() then continue end
-		if v:GetNoDraw() then continue end
-		if (v == p) then 
-				continue 
-		end
+	if not IsValid(v) or not v:IsPlayer() then continue end
+	if v:GetNoDraw() then continue end
+	if (v == p) then 
+		continue 
+	end
 
-		local newUser = false
+	local newUser = false
 
 
-		if (v:GetUTime() or 0)/60 < 125 then
-			newUser = true
-		end 
+	if (v:GetUTimeTotalTime() or 0)/60 < 125 then
+		newUser = true
+	end 
 
     cam.Start3D2D(v:GetPos()+cacheVector, ang, 0.1);
         draw.SimpleTextOutlined(v:Name(), DarkRP.Library.Font(12, 0, "Montserrat Bold"), 0, 40, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, DarkRP.Config.Colors["Secondary"])
-				if newUser then
-					draw.SimpleTextOutlined("Nouveau Joueur", DarkRP.Library.Font(8, 0, "Montserrat Bold"), 0, 75, DarkRP.Config.Colors["Green"], TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, DarkRP.Config.Colors["Secondary"])
-				end
-		cam.End3D2D()
+		if newUser then
+			draw.SimpleTextOutlined("Nouveau Joueur", DarkRP.Library.Font(8, 0, "Montserrat Bold"), 0, 75, DarkRP.Config.Colors["Green"], TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, DarkRP.Config.Colors["Secondary"])
+		end
+	cam.End3D2D()
   end
 
 end
