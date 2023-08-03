@@ -72,7 +72,7 @@ hook.Add("HUDPaint", "S:Prisel:HUD:Hook:HUDPaint", function()
   	draw.RoundedBox(DarkRP.Config.RoundedBoxValue, DarkRP.ScrW * 0.02, DarkRP.ScrH - (30) * 2, math.Clamp(lerps.hunger * 2, 0, DarkRP.ScrW * 0.1), DarkRP.ScrH * 0.02, DarkRP.Config.Colors["Green"])
   	draw.RoundedBox(DarkRP.Config.RoundedBoxValue, DarkRP.ScrW * 0.02, DarkRP.ScrH - (30) * 3, math.Clamp(lerps.heal * 2, 0, DarkRP.ScrW * 0.1), DarkRP.ScrH * 0.02, DarkRP.Config.Colors["Red"])
 	draw.SimpleText(math.Round(lerps.armor), DarkRP.Library.Font(6, 0, "Montserrat Bold"), DarkRP.ScrW * 0.02 + DarkRP.ScrW * 0.1 /2, DarkRP.ScrH - 30 + DarkRP.ScrH * 0.02 /2, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-	draw.SimpleText(lerps.hunger, DarkRP.Library.Font(6, 0, "Montserrat Bold"), DarkRP.ScrW * 0.02 + DarkRP.ScrW * 0.1 /2, DarkRP.ScrH - 30 *2 + DarkRP.ScrH * 0.02 /2, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+	draw.SimpleText(math.Round(lerps.hunger), DarkRP.Library.Font(6, 0, "Montserrat Bold"), DarkRP.ScrW * 0.02 + DarkRP.ScrW * 0.1 /2, DarkRP.ScrH - 30 *2 + DarkRP.ScrH * 0.02 /2, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 	draw.SimpleText(math.Round(lerps.heal), DarkRP.Library.Font(6, 0, "Montserrat Bold"), DarkRP.ScrW * 0.02 + DarkRP.ScrW * 0.1 /2, DarkRP.ScrH - 30 *3 + DarkRP.ScrH * 0.02 /2, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 
 	surface.SetDrawColor(color_white)
@@ -103,14 +103,11 @@ hook.Add("HUDPaint", "S:Prisel:HUD:Hook:HUDPaint", function()
 		DarkRP.Library.DrawMaterialSwing(DarkRP.Library.FetchCDN("prisel_main/prisel_logo_bleu"), DarkRP.ScrW * 0.027, DarkRP.ScrW * 0.027, (624/8)-DarkRP.ScrW/DarkRP.ScrW, (439/8)-DarkRP.ScrH/DarkRP.ScrH, 8, 3)
 	end
 
-	local trace = localPlayer:GetEyeTrace()
-	local ent = trace.Entity
+	
+	local ent = localPlayer:GetEyeTrace().Entity
 
-	if IsValid(ent) and ent:IsPlayer() and not ent:GetNoDraw() and ent ~= localPlayer and ent:Alive() and ent:GetPos():DistToSqr(localPlayer:GetPos()) <= 8000 then
-		surface.SetDrawColor(color_white)
-		surface.SetMaterial(DarkRP.Library.FetchCDN("prisel_hud/interact_e"))
-		surface.DrawTexturedRect(DarkRP.ScrW / 2 - 30, DarkRP.ScrH / 2 - 30, 60, 60)
-		draw.SimpleText("INTERAGIR", DarkRP.Library.Font(7, 0, "Montserrat Bold"), DarkRP.ScrW / 2, DarkRP.ScrH / 2 + 40, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+	if IsValid(ent) and ent:isKeysOwnable() and ent:GetPos():DistToSqr(localPlayer:GetPos()) < 10000 then
+		hook.Call("P.HUD.DrawDoorData", nil, ent)
 	end
 end)
 
@@ -132,7 +129,7 @@ local function NameAboveTheHead()
   for k,v in ipairs(ents.FindInSphere(p:GetPos(), 100)) do
 	if not IsValid(v) or not v:IsPlayer() then continue end
 	if v:GetNoDraw() then continue end
-	if (v == p) then 
+	if (v == p) then
 		continue 
 	end
 
@@ -150,11 +147,9 @@ local function NameAboveTheHead()
 		end
 	cam.End3D2D()
   end
-
 end
 
 hook.Add("PostDrawTranslucentRenderables", "PriselV3::HUD::ShowNameAboveHead", NameAboveTheHead)
-
 
 local DrawDistance = 250
 local doorInfo = {}
@@ -239,19 +234,13 @@ local function getAllowedGroupNames( door )
 end
 
 
-hook.Add( "HUDDrawDoorData", "sh_doordisplay_hudoverride", function( door )
+hook.Add( "P.HUD.DrawDoorData", "sh_doordisplay_hudoverride", function( door )
 	if isDoor( door ) and isOwnable( door ) then
 		if #getAllowedGroupNames( door ) < 1 then
-			if !getOwner( door ) then
-                surface.SetDrawColor(color_white)
-                surface.SetMaterial( DarkRP.Library.FetchCDN("prisel_hud/interact_e") )
-                surface.DrawTexturedRect( DarkRP.ScrW / 2 - 30, DarkRP.ScrH / 2 - 30, 60, 60 )
-                draw.SimpleTextOutlined("F2 POUR INTERAGIR", DarkRP.Library.Font(7, 0, "Montserrat Bold"), DarkRP.ScrW / 2, DarkRP.ScrH / 2 + 50, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, DarkRP.Config.Colors["Secondary"])
-
-            elseif isAllowedToCoown( door, LocalPlayer() ) then
-                surface.SetDrawColor(color_white)
-                surface.SetMaterial( DarkRP.Library.FetchCDN("prisel_hud/interact_e") )
-                surface.DrawTexturedRect( DarkRP.ScrW / 2 - 30, DarkRP.ScrH / 2 - 30, 60, 60 )
+			surface.SetDrawColor(color_white)
+			surface.SetMaterial( DarkRP.Library.FetchCDN("prisel_hud/interact_e") )
+			surface.DrawTexturedRect( DarkRP.ScrW / 2 - 60/2, DarkRP.ScrH / 2 - 60/2, 60, 60 )
+			if !getOwner( door ) or isAllowedToCoown( door, LocalPlayer() ) then
                 draw.SimpleTextOutlined("F2 POUR INTERAGIR", DarkRP.Library.Font(7, 0, "Montserrat Bold"), DarkRP.ScrW / 2, DarkRP.ScrH / 2 + 50, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, DarkRP.Config.Colors["Secondary"])
             end
 		end
