@@ -103,7 +103,6 @@ hook.Add("HUDPaint", "S:Prisel:HUD:Hook:HUDPaint", function()
 		DarkRP.Library.DrawMaterialSwing(DarkRP.Library.FetchCDN("prisel_main/prisel_logo_bleu"), DarkRP.ScrW * 0.027, DarkRP.ScrW * 0.027, (624/8)-DarkRP.ScrW/DarkRP.ScrW, (439/8)-DarkRP.ScrH/DarkRP.ScrH, 8, 3)
 	end
 
-	
 	local ent = localPlayer:GetEyeTrace().Entity
 
 	if IsValid(ent) and ent:isKeysOwnable() and ent:GetPos():DistToSqr(localPlayer:GetPos()) < 10000 then
