@@ -1,14 +1,3 @@
-/*
- * -------------------------
- * • Fichier: cl_s-prisel-hud.lua
- * • Projet: client
- * • Création : Monday, 10th July 2023 2:48:08 am
- * • Auteur : Ekali
- * • Modification : Monday, 10th July 2023 12:20:43 pm
- * • Destiné à Prisel.fr en V3
- * -------------------------
- */
-
 PriselHUD = PriselHUD or {}
 PriselHUD.ActiveLogo = true
 
@@ -26,6 +15,9 @@ local function drawText(text, font, x, y, color, alignX, alignY)
     draw.SimpleText(text, font, x, y, color, alignX, alignY)
 end
 
+-- DarkRP.Instructions:AddInstruction("hello", "world", "dsa", color_black, true)
+
+-- DarkRP.Instructions:Set("hello")
 
 hook.Add( "HUDDrawTargetID", "PriselV3:HideName", function()
 	return false
@@ -126,14 +118,18 @@ local function NameAboveTheHead()
   if p:HasAdminMode() then return end
 
   for k,v in ipairs(ents.FindInSphere(p:GetPos(), 100)) do
+
 	if not IsValid(v) or not v:IsPlayer() then continue end
+
+	if v:HasAdminMode() then continue end
+
 	if v:GetNoDraw() then continue end
+
 	if (v == p) then
 		continue 
 	end
 
 	local newUser = false
-
 
 	if (v:GetUTimeTotalTime() or 0)/60 < 125 then
 		newUser = true
@@ -150,282 +146,282 @@ end
 
 hook.Add("PostDrawTranslucentRenderables", "PriselV3::HUD::ShowNameAboveHead", NameAboveTheHead)
 
-local DrawDistance = 250
-local doorInfo = {}
-local function computeFadeAlpha( time, dur, sa, ea, start )
-	time = time - (start or 0)
+-- local DrawDistance = 250
+-- local doorInfo = {}
+-- local function computeFadeAlpha( time, dur, sa, ea, start )
+-- 	time = time - (start or 0)
 
-	if time < 0 then return sa end	
-	if time > dur then return ea end
+-- 	if time < 0 then return sa end	
+-- 	if time > dur then return ea end
 
-	return sa + ((math.sin( (time / dur) * (math.pi / 2) )^2) * (ea - sa))
-end
+-- 	return sa + ((math.sin( (time / dur) * (math.pi / 2) )^2) * (ea - sa))
+-- end
 
-local function colorMulAlpha( col, mul )
-	return Color( col.r, col.g, col.b, col.a * mul )
-end
+-- local function colorMulAlpha( col, mul )
+-- 	return Color( col.r, col.g, col.b, col.a * mul )
+-- end
 
-local function isDoor( door )
-	if door.isDoor and door.isKeysOwnable then
-		return door:isDoor() and door:isKeysOwnable()
-	end
-end
+-- local function isDoor( door )
+-- 	if door.isDoor and door.isKeysOwnable then
+-- 		return door:isDoor() and door:isKeysOwnable()
+-- 	end
+-- end
 
-local function isOwnable( door )
-	if door.getKeysNonOwnable then
-		return door:getKeysNonOwnable() != true
-	end
-end
+-- local function isOwnable( door )
+-- 	if door.getKeysNonOwnable then
+-- 		return door:getKeysNonOwnable() != true
+-- 	end
+-- end
 
-local function getTitle( door )
-	if door.getKeysTitle then
-		return door:getKeysTitle()
-	end
-end
+-- local function getTitle( door )
+-- 	if door.getKeysTitle then
+-- 		return door:getKeysTitle()
+-- 	end
+-- end
 
-local function getOwner( door )
-	if door.getDoorOwner then
-		local owner = door:getDoorOwner()
+-- local function getOwner( door )
+-- 	if door.getDoorOwner then
+-- 		local owner = door:getDoorOwner()
 
-		if IsValid( owner ) then
-			return owner
-		end
-	end
-end
+-- 		if IsValid( owner ) then
+-- 			return owner
+-- 		end
+-- 	end
+-- end
 
-local function getCoowners( door )
-	local owner = getOwner( door )
-	local coents = {}
+-- local function getCoowners( door )
+-- 	local owner = getOwner( door )
+-- 	local coents = {}
 
-	if door.isKeysOwnedBy then
-		for _, ply in pairs( player.GetAll() ) do
-			if door:isKeysOwnedBy( ply ) and ply != owner then
-				table.insert( coents, ply )
-			end
-		end
-	end
+-- 	if door.isKeysOwnedBy then
+-- 		for _, ply in pairs( player.GetAll() ) do
+-- 			if door:isKeysOwnedBy( ply ) and ply != owner then
+-- 				table.insert( coents, ply )
+-- 			end
+-- 		end
+-- 	end
 
-	return coents
-end
+-- 	return coents
+-- end
 
-local function isAllowedToCoown( door, ply )
-	if door.isKeysAllowedToOwn and door.isKeysOwnedBy then
-		return door:isKeysAllowedToOwn( ply ) and !door:isKeysOwnedBy( ply )
-	end
-end
+-- local function isAllowedToCoown( door, ply )
+-- 	if door.isKeysAllowedToOwn and door.isKeysOwnedBy then
+-- 		return door:isKeysAllowedToOwn( ply ) and !door:isKeysOwnedBy( ply )
+-- 	end
+-- end
 
-local function getAllowedGroupNames( door )
-	local ret = {}
+-- local function getAllowedGroupNames( door )
+-- 	local ret = {}
 
-	if door.getKeysDoorGroup and door:getKeysDoorGroup() then
-		table.insert( ret, door:getKeysDoorGroup() )
-	elseif door.getKeysDoorTeams then
-		for tid in pairs( door:getKeysDoorTeams() or {} ) do
-			local tname = team.GetName( tid )
+-- 	if door.getKeysDoorGroup and door:getKeysDoorGroup() then
+-- 		table.insert( ret, door:getKeysDoorGroup() )
+-- 	elseif door.getKeysDoorTeams then
+-- 		for tid in pairs( door:getKeysDoorTeams() or {} ) do
+-- 			local tname = team.GetName( tid )
 
-			if tname then
-				table.insert( ret, tname )
-			end
-		end
-	end
+-- 			if tname then
+-- 				table.insert( ret, tname )
+-- 			end
+-- 		end
+-- 	end
 
-	return ret
-end
+-- 	return ret
+-- end
 
 
-hook.Add( "P.HUD.DrawDoorData", "sh_doordisplay_hudoverride", function( door )
-	if isDoor( door ) and isOwnable( door ) then
-		if #getAllowedGroupNames( door ) < 1 then
-			surface.SetDrawColor(color_white)
-			surface.SetMaterial( DarkRP.Library.FetchCDN("prisel_hud/interact_e") )
-			surface.DrawTexturedRect( DarkRP.ScrW / 2 - 60/2, DarkRP.ScrH / 2 - 60/2, 60, 60 )
-			if !getOwner( door ) or isAllowedToCoown( door, LocalPlayer() ) then
-                draw.SimpleTextOutlined("F2 POUR INTERAGIR", DarkRP.Library.Font(7, 0, "Montserrat Bold"), DarkRP.ScrW / 2, DarkRP.ScrH / 2 + 50, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, DarkRP.Config.Colors["Secondary"])
-            end
-		end
+-- hook.Add( "P.HUD.DrawDoorData", "sh_doordisplay_hudoverride", function( door )
+-- 	if isDoor( door ) and isOwnable( door ) then
+-- 		if #getAllowedGroupNames( door ) < 1 then
+-- 			surface.SetDrawColor(color_white)
+-- 			surface.SetMaterial( DarkRP.Library.FetchCDN("prisel_hud/interact_e") )
+-- 			surface.DrawTexturedRect( DarkRP.ScrW / 2 - 60/2, DarkRP.ScrH / 2 - 60/2, 60, 60 )
+-- 			if !getOwner( door ) or isAllowedToCoown( door, LocalPlayer() ) then
+--                 draw.SimpleTextOutlined("F2 POUR INTERAGIR", DarkRP.Library.Font(7, 0, "Montserrat Bold"), DarkRP.ScrW / 2, DarkRP.ScrH / 2 + 50, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, DarkRP.Config.Colors["Secondary"])
+--             end
+-- 		end
 
-		return true
-	end
-end )
+-- 		return true
+-- 	end
+-- end )
 
-hook.Add( "PostDrawTranslucentRenderables", "sh_doordisplay_drawdisplay", function()
-	for _, door in pairs( ents.GetAll() ) do
-		if !isDoor( door ) or !isOwnable( door ) then continue end
+-- hook.Add( "PostDrawTranslucentRenderables", "sh_doordisplay_drawdisplay", function()
+-- 	for _, door in pairs( ents.GetAll() ) do
+-- 		if !isDoor( door ) or !isOwnable( door ) then continue end
 
-		local dinfo = doorInfo[door]
+-- 		local dinfo = doorInfo[door]
 
-		if !dinfo then
-			dinfo = {
-				coownCollapsed = true
-			}
+-- 		if !dinfo then
+-- 			dinfo = {
+-- 				coownCollapsed = true
+-- 			}
 
-			local dimens = door:OBBMaxs() - door:OBBMins()
-			local center = door:OBBCenter()
-			local min, j 
+-- 			local dimens = door:OBBMaxs() - door:OBBMins()
+-- 			local center = door:OBBCenter()
+-- 			local min, j 
 
-			for i=1, 3 do
-				if !min or dimens[i] <= min then
-					j = i
-					min = dimens[i]
-				end
-			end
+-- 			for i=1, 3 do
+-- 				if !min or dimens[i] <= min then
+-- 					j = i
+-- 					min = dimens[i]
+-- 				end
+-- 			end
 
-			local norm = Vector()
-			norm[j] = 1
+-- 			local norm = Vector()
+-- 			norm[j] = 1
 
-			local lang = Angle( 0, norm:Angle().y + 90, 90 )
+-- 			local lang = Angle( 0, norm:Angle().y + 90, 90 )
 
-			if door:GetClass() == "prop_door_rotating" then
-				dinfo.lpos = Vector( center.x, center.y, 30 ) + lang:Up() * (min / 6)
-			else
-				dinfo.lpos = center + Vector( 0, 0, 20 ) + lang:Up() * ((min / 2) - 0.1)
-			end
+-- 			if door:GetClass() == "prop_door_rotating" then
+-- 				dinfo.lpos = Vector( center.x, center.y, 30 ) + lang:Up() * (min / 6)
+-- 			else
+-- 				dinfo.lpos = center + Vector( 0, 0, 20 ) + lang:Up() * ((min / 2) - 0.1)
+-- 			end
 			
-			dinfo.lang = lang
+-- 			dinfo.lang = lang
 
-			doorInfo[door] = dinfo
-		end
+-- 			doorInfo[door] = dinfo
+-- 		end
 
-		local dist = door:GetPos():Distance( LocalPlayer():GetShootPos() )
+-- 		local dist = door:GetPos():Distance( LocalPlayer():GetShootPos() )
 
-		if dist <= DrawDistance then
-			dinfo.viewStart = dinfo.viewStart or CurTime()
+-- 		if dist <= DrawDistance then
+-- 			dinfo.viewStart = dinfo.viewStart or CurTime()
 
-			local title = getTitle( door )
-			local owner = getOwner( door )
-			local coowners = getCoowners( door ) or {}
-			local allowedgroups = getAllowedGroupNames( door )
+-- 			local title = getTitle( door )
+-- 			local owner = getOwner( door )
+-- 			local coowners = getCoowners( door ) or {}
+-- 			local allowedgroups = getAllowedGroupNames( door )
 
-			local lpos, lang = Vector(), Angle()
-			lpos:Set( dinfo.lpos )
-			lang:Set( dinfo.lang )
+-- 			local lpos, lang = Vector(), Angle()
+-- 			lpos:Set( dinfo.lpos )
+-- 			lang:Set( dinfo.lang )
 
-			local ang = door:LocalToWorldAngles( lang )
-			local dot = ang:Up():Dot( 
-				LocalPlayer():GetShootPos() - door:WorldSpaceCenter()
-			)
+-- 			local ang = door:LocalToWorldAngles( lang )
+-- 			local dot = ang:Up():Dot( 
+-- 				LocalPlayer():GetShootPos() - door:WorldSpaceCenter()
+-- 			)
 
-			if dot < 0 then
-				lang:RotateAroundAxis( lang:Right(), 180 )
+-- 			if dot < 0 then
+-- 				lang:RotateAroundAxis( lang:Right(), 180 )
 
-				lpos = lpos - (2 * lpos * -lang:Up())
-				ang = door:LocalToWorldAngles( lang )
-			end
+-- 				lpos = lpos - (2 * lpos * -lang:Up())
+-- 				ang = door:LocalToWorldAngles( lang )
+-- 			end
 
-			local pos = door:LocalToWorld( lpos )
-			local scale = 0.14
+-- 			local pos = door:LocalToWorld( lpos )
+-- 			local scale = 0.14
 
-			local vst = dinfo.viewStart
-			local ct = CurTime()
+-- 			local vst = dinfo.viewStart
+-- 			local ct = CurTime()
 
-			cam.Start3D2D( pos, ang, scale )
-				local admul = math.cos( (dist / DrawDistance) * (math.pi / 2) )^2
-				local amul = computeFadeAlpha( ct, 0.98, 0, 1, vst ) * admul
+-- 			cam.Start3D2D( pos, ang, scale )
+-- 				local admul = math.cos( (dist / DrawDistance) * (math.pi / 2) )^2
+-- 				local amul = computeFadeAlpha( ct, 0.98, 0, 1, vst ) * admul
 
-				if #allowedgroups < 1 then
-					draw.SimpleTextOutlined(
-						owner and (title or "Acheté") or "LIBRE",
-						DarkRP.Library.Font(15, 0, "Montserrat Bold"),
-						0, 10,
-						colorMulAlpha( color_white, amul ),
-						TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM,
-						1, colorMulAlpha( color_black, amul )
-					)
+-- 				if #allowedgroups < 1 then
+-- 					draw.SimpleTextOutlined(
+-- 						owner and (title or "Acheté") or "LIBRE",
+-- 						DarkRP.Library.Font(15, 0, "Montserrat Bold"),
+-- 						0, 10,
+-- 						colorMulAlpha( color_white, amul ),
+-- 						TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM,
+-- 						1, colorMulAlpha( color_black, amul )
+-- 					)
 
-					if owner then
-						amul = computeFadeAlpha( ct, 0.75, 0, 1, vst + 0.35 ) * admul
+-- 					if owner then
+-- 						amul = computeFadeAlpha( ct, 0.75, 0, 1, vst + 0.35 ) * admul
 
-						draw.SimpleTextOutlined(
-							owner:Nick(),
-							DarkRP.Library.Font(12, 0, "Montserrat Bold"),
-							0, 50,
-							colorMulAlpha( color_white, amul ),
-							TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM,
-							1, colorMulAlpha( color_black, amul )
-						)
+-- 						draw.SimpleTextOutlined(
+-- 							owner:Nick(),
+-- 							DarkRP.Library.Font(12, 0, "Montserrat Bold"),
+-- 							0, 50,
+-- 							colorMulAlpha( color_white, amul ),
+-- 							TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM,
+-- 							1, colorMulAlpha( color_black, amul )
+-- 						)
 
-						if #coowners > 0 then
-							if !dinfo.coownCollapsed then
-								local conames = {}
+-- 						if #coowners > 0 then
+-- 							if !dinfo.coownCollapsed then
+-- 								local conames = {}
 
-								for i=1, #coowners do
-									table.insert( conames, coowners[i]:Nick() )
-								end
+-- 								for i=1, #coowners do
+-- 									table.insert( conames, coowners[i]:Nick() )
+-- 								end
 
-								table.sort( conames )
+-- 								table.sort( conames )
 
-								for i=1, #conames do
-									amul = computeFadeAlpha( ct, 0.75, 0, 1, dinfo.coownExpandStart + 0.2*i ) * admul
+-- 								for i=1, #conames do
+-- 									amul = computeFadeAlpha( ct, 0.75, 0, 1, dinfo.coownExpandStart + 0.2*i ) * admul
 
-									draw.SimpleTextOutlined(
-										conames[i],
-										DarkRP.Library.Font(12, 0, "Montserrat Bold"),
-										0, 60 + 25*i,
-										colorMulAlpha( color_white, amul ),
-										TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM,
-										1, colorMulAlpha( color_black, amul )
-									)
-								end
-							else
-								amul = computeFadeAlpha( ct, 1, 0, 1, vst + 1.0 ) * admul
+-- 									draw.SimpleTextOutlined(
+-- 										conames[i],
+-- 										DarkRP.Library.Font(12, 0, "Montserrat Bold"),
+-- 										0, 60 + 25*i,
+-- 										colorMulAlpha( color_white, amul ),
+-- 										TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM,
+-- 										1, colorMulAlpha( color_black, amul )
+-- 									)
+-- 								end
+-- 							else
+-- 								amul = computeFadeAlpha( ct, 1, 0, 1, vst + 1.0 ) * admul
 
-								local whitpos = util.IntersectRayWithPlane( 
-									LocalPlayer():GetShootPos(), LocalPlayer():GetAimVector(),
-									pos, ang:Up()
-								)
-								local cy = 0
-								local cactive = false
+-- 								local whitpos = util.IntersectRayWithPlane( 
+-- 									LocalPlayer():GetShootPos(), LocalPlayer():GetAimVector(),
+-- 									pos, ang:Up()
+-- 								)
+-- 								local cy = 0
+-- 								local cactive = false
 
-								if whitpos and LocalPlayer():GetEyeTrace().Entity == door then
-									local hitpos = door:WorldToLocal( whitpos ) - lpos
+-- 								if whitpos and LocalPlayer():GetEyeTrace().Entity == door then
+-- 									local hitpos = door:WorldToLocal( whitpos ) - lpos
 
-									cy = -hitpos.z / scale
-									cactive = true
-								end
+-- 									cy = -hitpos.z / scale
+-- 									cactive = true
+-- 								end
 
-								if (ct - vst) >= 2 and cactive and cy >= 80 and cy <= 80 + 25 then
-									dinfo.coownExpandRequestStart = dinfo.coownExpandRequestStart or CurTime()
+-- 								if (ct - vst) >= 2 and cactive and cy >= 80 and cy <= 80 + 25 then
+-- 									dinfo.coownExpandRequestStart = dinfo.coownExpandRequestStart or CurTime()
 
-									if CurTime() - dinfo.coownExpandRequestStart >= 0.75 then
-										dinfo.coownCollapsed = false
-										dinfo.coownExpandStart = CurTime()
-										dinfo.coownExpandRequestStart = nil
-									end
+-- 									if CurTime() - dinfo.coownExpandRequestStart >= 0.75 then
+-- 										dinfo.coownCollapsed = false
+-- 										dinfo.coownExpandStart = CurTime()
+-- 										dinfo.coownExpandRequestStart = nil
+-- 									end
 
-									amul = computeFadeAlpha( ct, 0.75, 1, 0, dinfo.coownExpandRequestStart ) * admul --fade out
-								else
-									dinfo.coownExpandRequestStart = nil
-								end
+-- 									amul = computeFadeAlpha( ct, 0.75, 1, 0, dinfo.coownExpandRequestStart ) * admul --fade out
+-- 								else
+-- 									dinfo.coownExpandRequestStart = nil
+-- 								end
 
-								draw.SimpleTextOutlined(
-									"+ " .. #coowners .. " personne(s)",
-									DarkRP.Library.Font(12, 0, "Montserrat Bold"),
-									0, 80,
-									colorMulAlpha( color_white, amul ),
-									TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM,
-									1, colorMulAlpha( color_black, amul )
-								)
-							end
-						end
-					end
-				else
-					for i=1, #allowedgroups do
-						amul = computeFadeAlpha( ct, 0.75, 0, 1, vst + 0.2*i ) * admul
+-- 								draw.SimpleTextOutlined(
+-- 									"+ " .. #coowners .. " personne(s)",
+-- 									DarkRP.Library.Font(12, 0, "Montserrat Bold"),
+-- 									0, 80,
+-- 									colorMulAlpha( color_white, amul ),
+-- 									TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM,
+-- 									1, colorMulAlpha( color_black, amul )
+-- 								)
+-- 							end
+-- 						end
+-- 					end
+-- 				else
+-- 					for i=1, #allowedgroups do
+-- 						amul = computeFadeAlpha( ct, 0.75, 0, 1, vst + 0.2*i ) * admul
 
-						draw.SimpleTextOutlined(
-							allowedgroups[i],
-							DarkRP.Library.Font(12, 0, "Montserrat Bold"),
-							0, 50 + 30*(i-1),
-							colorMulAlpha( color_white, amul ),
-							TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM,
-							1, colorMulAlpha( color_black, amul )
-						)
-					end
-				end
-			cam.End3D2D()
-		else
-			dinfo.viewStart = nil
-			dinfo.coownCollapsed = true
-		end
-	end
-end)
+-- 						draw.SimpleTextOutlined(
+-- 							allowedgroups[i],
+-- 							DarkRP.Library.Font(12, 0, "Montserrat Bold"),
+-- 							0, 50 + 30*(i-1),
+-- 							colorMulAlpha( color_white, amul ),
+-- 							TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM,
+-- 							1, colorMulAlpha( color_black, amul )
+-- 						)
+-- 					end
+-- 				end
+-- 			cam.End3D2D()
+-- 		else
+-- 			dinfo.viewStart = nil
+-- 			dinfo.coownCollapsed = true
+-- 		end
+-- 	end
+-- end)
